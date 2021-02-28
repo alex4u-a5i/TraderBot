@@ -1,22 +1,21 @@
 from binance.client import Client
-from binance.helpers import date_to_milliseconds, interval_to_milliseconds
+from binance.helpers import date_to_milliseconds
+import json
 
 
 class HistoricalKlines:
     client = Client("", "")
 
-    def __init__(self, symbol, interval, start_str, klines=[None]):
+    def __init__(self, symbol, interval, start_str, klines=[[]]):
         self.symbol = symbol
         self.klines = klines
         self.interval = interval
         self.start_str = start_str
         self.end_str = start_str
-        self.start_ts = date_to_milliseconds(self.start_str)
-        self.end_ts = date_to_milliseconds(self.end_str)
 
     def fetch_klines(self, end_str=None):
-        assert date_to_milliseconds(end_str) > self.end_ts
-        assert (date_to_milliseconds(end_str) - self.end_ts) / interval_to_milliseconds(self.interval) < 500
+        if end_str:
+            assert date_to_milliseconds(end_str) > date_to_milliseconds(self.start_str)
         new_klines = self.client.get_historical_klines(self.symbol, self.interval, self.end_str, end_str)
         self.klines[-1] = new_klines[0]
         self.klines += new_klines[1:]
@@ -35,4 +34,4 @@ class HistoricalKlines:
                 ),
                 "w"
         ) as f:
-            f.write(json.dumps(klines))
+            f.write(json.dumps(self.klines))
