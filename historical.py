@@ -18,6 +18,7 @@ import json
     "17928899.62484339"  # Ignore
 ]"""
 
+
 class HistoricalKlines:
     """Fetch Historical Klines from Binance"""
     client = Client("", "")
@@ -32,6 +33,9 @@ class HistoricalKlines:
         self.end_str = start_str
 
     def fetch_klines(self, end_str=None):
+        """Fetches klines from the start date to the end date"""
+
+        # If an end date is not specified a maximum of 500 data points is fetched.
         if end_str:
             assert date_to_milliseconds(end_str) > date_to_milliseconds(self.start_str)
         new_klines = self.client.get_historical_klines(self.symbol, self.interval, self.end_str, end_str)
@@ -43,6 +47,8 @@ class HistoricalKlines:
         return self.klines
 
     def save_to_file(self):
+        """Write data to a Json File"""
+
         with open(
                 "Binance_{}_{}_{}-{}.json".format(
                     self.symbol,
